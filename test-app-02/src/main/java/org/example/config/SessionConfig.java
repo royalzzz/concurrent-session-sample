@@ -14,7 +14,7 @@ import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @Configuration
-@EnableRedisHttpSession
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 7 * 24 * 60 * 60, redisNamespace = "auth:goodscattle")
 public class SessionConfig {
 
     @Autowired
