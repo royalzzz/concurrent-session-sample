@@ -1,25 +1,22 @@
 package org.example.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
 
 @Configuration
-@EnableRedisHttpSession
+@EnableWebSecurity
 public class SecurityConfig<S extends Session> {
 
     @Autowired
-    private FindByIndexNameSessionRepository<S> sessionRepository;
+    private FindByIndexNameSessionRepository<S> redisSessionRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,7 +39,7 @@ public class SecurityConfig<S extends Session> {
 
     @Bean
     public SpringSessionBackedSessionRegistry<S> sessionRegistry() {
-        return new SpringSessionBackedSessionRegistry<>(this.sessionRepository);
+        return new SpringSessionBackedSessionRegistry<>(this.redisSessionRepository);
     }
 
     @Bean
@@ -52,13 +49,5 @@ public class SecurityConfig<S extends Session> {
         return rememberMeServices;
     }
 
-    @Autowired
-    private RedisProperties redisProperties;
 
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        // I don't know why this factory can't load my configuration of redis in application.yml.
-        // return new LettuceConnectionFactory();
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort()));
-    }
 }
